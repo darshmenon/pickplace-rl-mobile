@@ -1,7 +1,0 @@
-setup.cfg
-setup.py
-pickplace_rl_mobile/__init__.py
-pickplace_rl_mobile.egg-info/PKG-INFO
-pickplace_rl_mobile.egg-info/SOURCES.txt
-pickplace_rl_mobile.egg-info/dependency_links.txt
-pickplace_rl_mobile.egg-info/top_level.txt
