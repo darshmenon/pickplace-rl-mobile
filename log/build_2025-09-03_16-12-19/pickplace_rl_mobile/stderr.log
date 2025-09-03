@@ -1,0 +1,5 @@
+failed to create symbolic link '/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_python/pickplace_rl_mobile/pickplace_rl_mobile' because existing path cannot be removed: Is a directory
+gmake[2]: *** [CMakeFiles/ament_cmake_python_symlink_pickplace_rl_mobile.dir/build.make:70: CMakeFiles/ament_cmake_python_symlink_pickplace_rl_mobile] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:139: CMakeFiles/ament_cmake_python_symlink_pickplace_rl_mobile.dir/all] Error 2
+gmake[1]: *** Waiting for unfinished jobs....
+gmake: *** [Makefile:146: all] Error 2

@@ -358,25 +358,7 @@
   </joint>
 
   <!-- Camera Optical Frame -->
-  <link name="camera_optical_frame">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.01 0.01 0.01"/>
-      </geometry>
-      <material name="black"/>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <geometry>
-        <box size="0.01 0.01 0.01"/>
-      </geometry>
-    </collision>
-    <inertial>
-      <mass value="0.01"/>
-      <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/>
-    </inertial>
-  </link>
+  <link name="camera_optical_frame"/>
 
   <joint name="camera_optical_joint" type="fixed">
     <parent link="camera_link"/>
@@ -440,8 +422,6 @@
         <namespace>/</namespace>
       </ros>
       <update_rate>50</update_rate>
-      <joint_name>left_wheel_joint</joint_name>
-      <joint_name>right_wheel_joint</joint_name>
       <joint_name>shoulder_joint</joint_name>
       <joint_name>shoulder_pitch_joint</joint_name>
       <joint_name>elbow_joint</joint_name>
@@ -449,9 +429,6 @@
       <joint_name>wrist_pitch_joint</joint_name>
       <joint_name>left_finger_joint</joint_name>
       <joint_name>right_finger_joint</joint_name>
-      <joint_name>camera_joint</joint_name>
-      <joint_name>camera_optical_joint</joint_name>
-      <joint_name>arm_base_joint</joint_name>
     </plugin>
   </gazebo>
 

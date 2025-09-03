@@ -1,0 +1,2 @@
+# Empty custom commands generated dependencies file for ament_cmake_python_copy_pickplace_rl_mobile.
+# This may be replaced when dependencies are built.
