@@ -384,34 +384,62 @@
     <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
   </joint>
 
-  <!-- Gazebo Plugins for Garden/Harmonic -->
-  
-  <!-- Differential Drive Plugin -->
+  <!-- Gazebo Plugins -->
   <gazebo>
-    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <ros>
+        <namespace>/</namespace>
+      </ros>
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
       <wheel_separation>0.33</wheel_separation>
-      <wheel_radius>0.05</wheel_radius>
-      <odom_publish_frequency>50</odom_publish_frequency>
-      <max_linear_acceleration>1</max_linear_acceleration>
-      <min_linear_acceleration>-1</min_linear_acceleration>
-      <max_angular_acceleration>2</max_angular_acceleration>
-      <min_angular_acceleration>-2</min_angular_acceleration>
-      <max_linear_velocity>0.5</max_linear_velocity>
-      <min_linear_velocity>-0.5</min_linear_velocity>
-      <max_angular_velocity>1</max_angular_velocity>
-      <min_angular_velocity>-1</min_angular_velocity>
-      <topic>cmd_vel</topic>
-      <odom_topic>odom</odom_topic>
-      <frame_id>odom</frame_id>
-      <child_frame_id>base_link</child_frame_id>
+      <wheel_diameter>0.1</wheel_diameter>
+      <max_wheel_torque>10</max_wheel_torque>
+      <max_wheel_acceleration>1.0</max_wheel_acceleration>
+      <command_topic>cmd_vel</command_topic>
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
     </plugin>
   </gazebo>
 
-  <!-- Joint State Publisher Plugin -->
+  <!-- Camera Plugin -->
+  <gazebo reference="camera_link">
+    <sensor type="depth" name="camera">
+      <update_rate>30.0</update_rate>
+      <camera>
+        <horizontal_fov>1.047198</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>3</far>
+        </clip>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <ros>
+          <namespace>/camera</namespace>
+        </ros>
+        <camera_name>color</camera_name>
+        <frame_name>camera_optical_frame</frame_name>
+        <hack_baseline>0.07</hack_baseline>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- Joint State Publisher -->
   <gazebo>
-    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+    <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+      <ros>
+        <namespace>/</namespace>
+      </ros>
+      <update_rate>50</update_rate>
       <joint_name>left_wheel_joint</joint_name>
       <joint_name>right_wheel_joint</joint_name>
       <joint_name>shoulder_joint</joint_name>
@@ -421,144 +449,9 @@
       <joint_name>wrist_pitch_joint</joint_name>
       <joint_name>left_finger_joint</joint_name>
       <joint_name>right_finger_joint</joint_name>
-    </plugin>
-  </gazebo>
-
-  <!-- Joint Position Controller Plugin -->
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
-      <joint_name>shoulder_joint</joint_name>
-      <topic>shoulder_joint/cmd</topic>
-      <p_gain>1000</p_gain>
-      <i_gain>0</i_gain>
-      <d_gain>100</d_gain>
-      <i_max>1</i_max>
-      <i_min>-1</i_min>
-      <cmd_max>1000</cmd_max>
-      <cmd_min>-1000</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
-      <joint_name>shoulder_pitch_joint</joint_name>
-      <topic>shoulder_pitch_joint/cmd</topic>
-      <p_gain>1000</p_gain>
-      <i_gain>0</i_gain>
-      <d_gain>100</d_gain>
-      <i_max>1</i_max>
-      <i_min>-1</i_min>
-      <cmd_max>1000</cmd_max>
-      <cmd_min>-1000</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
-      <joint_name>elbow_joint</joint_name>
-      <topic>elbow_joint/cmd</topic>
-      <p_gain>800</p_gain>
-      <i_gain>0</i_gain>
-      <d_gain>80</d_gain>
-      <i_max>1</i_max>
-      <i_min>-1</i_min>
-      <cmd_max>800</cmd_max>
-      <cmd_min>-800</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
-      <joint_name>wrist_roll_joint</joint_name>
-      <topic>wrist_roll_joint/cmd</topic>
-      <p_gain>500</p_gain>
-      <i_gain>0</i_gain>
-      <d_gain>50</d_gain>
-      <i_max>1</i_max>
-      <i_min>-1</i_min>
-      <cmd_max>500</cmd_max>
-      <cmd_min>-500</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
-      <joint_name>wrist_pitch_joint</joint_name>
-      <topic>wrist_pitch_joint/cmd</topic>
-      <p_gain>500</p_gain>
-      <i_gain>0</i_gain>
-      <d_gain>50</d_gain>
-      <i_max>1</i_max>
-      <i_min>-1</i_min>
-      <cmd_max>500</cmd_max>
-      <cmd_min>-500</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
-      <joint_name>left_finger_joint</joint_name>
-      <topic>left_finger_joint/cmd</topic>
-      <p_gain>500</p_gain>
-      <i_gain>0</i_gain>
-      <d_gain>50</d_gain>
-      <i_max>1</i_max>
-      <i_min>-1</i_min>
-      <cmd_max>500</cmd_max>
-      <cmd_min>-500</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
-      <joint_name>right_finger_joint</joint_name>
-      <topic>right_finger_joint/cmd</topic>
-      <p_gain>500</p_gain>
-      <i_gain>0</i_gain>
-      <d_gain>50</d_gain>
-      <i_max>1</i_max>
-      <i_min>-1</i_min>
-      <cmd_max>500</cmd_max>
-      <cmd_min>-500</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <!-- Camera Sensor Plugin -->
-  <gazebo reference="camera_link">
-    <sensor name="camera" type="camera">
-      <pose>0 0 0 0 0 0</pose>
-      <camera>
-        <horizontal_fov>1.047</horizontal_fov>
-        <image>
-          <width>640</width>
-          <height>480</height>
-          <format>R8G8B8</format>
-        </image>
-        <clip>
-          <near>0.1</near>
-          <far>100</far>
-        </clip>
-      </camera>
-      <always_on>1</always_on>
-      <update_rate>30</update_rate>
-      <visualize>true</visualize>
-      <plugin filename="gz-sim-camera-system" name="gz::sim::systems::Camera">
-        <topic>camera/image_raw</topic>
-        <frame_id>camera_optical_frame</frame_id>
-      </plugin>
-    </sensor>
-  </gazebo>
-
-  <!-- Physics and Pose Publisher -->
-  <gazebo>
-    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
-      <publish_link_pose>true</publish_link_pose>
-      <publish_collision_pose>false</publish_collision_pose>
-      <publish_visual_pose>false</publish_visual_pose>
-      <publish_nested_model_pose>true</publish_nested_model_pose>
-      <use_pose_vector_msg>true</use_pose_vector_msg>
-      <static_publisher>true</static_publisher>
-      <static_update_frequency>1</static_update_frequency>
+      <joint_name>camera_joint</joint_name>
+      <joint_name>camera_optical_joint</joint_name>
+      <joint_name>arm_base_joint</joint_name>
     </plugin>
   </gazebo>
 
