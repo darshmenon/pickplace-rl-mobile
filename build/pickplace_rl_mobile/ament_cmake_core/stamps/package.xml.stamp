@@ -22,8 +22,9 @@
   <depend>joint_state_publisher</depend>
   <depend>joint_state_publisher_gui</depend>
   <depend>rviz2</depend>
-  <depend>gazebo_ros</depend>
-  <depend>gazebo_ros_pkgs</depend>
+  <depend>ros_gz_sim</depend>
+  <depend>ros_gz_bridge</depend>
+  <depend>ros_gz_interfaces</depend>
   <depend>xacro</depend>
 
   <!-- Test dependencies -->

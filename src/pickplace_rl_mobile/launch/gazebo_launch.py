@@ -41,7 +41,7 @@ def generate_launch_description():
             '-name', 'pickplace_robot',
             '-topic', 'robot_description',
             '-x', '0.0',
-            '-y', '0.0',
+            '-y', '0.5',
             '-z', '0.1'
         ],
         output='screen'
