@@ -366,32 +366,78 @@
     <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
   </joint>
 
-  <!-- Gazebo Plugins -->
+  <!-- Gazebo Harmonic Plugins -->
   <gazebo>
-    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
-      <ros>
-        <namespace>/</namespace>
-      </ros>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
       <wheel_separation>0.33</wheel_separation>
-      <wheel_diameter>0.1</wheel_diameter>
-      <max_wheel_torque>10</max_wheel_torque>
-      <max_wheel_acceleration>1.0</max_wheel_acceleration>
-      <command_topic>cmd_vel</command_topic>
-      <odometry_topic>odom</odometry_topic>
-      <odometry_frame>odom</odometry_frame>
-      <robot_base_frame>base_link</robot_base_frame>
-      <publish_odom>true</publish_odom>
-      <publish_odom_tf>true</publish_odom_tf>
-      <publish_wheel_tf>false</publish_wheel_tf>
+      <wheel_radius>0.05</wheel_radius>
+      <odom_publish_frequency>50</odom_publish_frequency>
+      <topic>cmd_vel</topic>
+      <odom_topic>odom</odom_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_link</child_frame_id>
+    </plugin>
+    
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>joint_states</topic>
+      <joint_name>shoulder_joint</joint_name>
+      <joint_name>shoulder_pitch_joint</joint_name>
+      <joint_name>elbow_joint</joint_name>
+      <joint_name>wrist_roll_joint</joint_name>
+      <joint_name>wrist_pitch_joint</joint_name>
+      <joint_name>left_finger_joint</joint_name>
+      <joint_name>right_finger_joint</joint_name>
+    </plugin>
+
+    <!-- Arm Joint Controllers -->
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>shoulder_joint</joint_name>
+      <initial_velocity>0.0</initial_velocity>
+      <topic>shoulder_joint/cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>shoulder_pitch_joint</joint_name>
+      <initial_velocity>0.0</initial_velocity>
+      <topic>shoulder_pitch_joint/cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>elbow_joint</joint_name>
+      <initial_velocity>0.0</initial_velocity>
+      <topic>elbow_joint/cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>wrist_roll_joint</joint_name>
+      <initial_velocity>0.0</initial_velocity>
+      <topic>wrist_roll_joint/cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>wrist_pitch_joint</joint_name>
+      <initial_velocity>0.0</initial_velocity>
+      <topic>wrist_pitch_joint/cmd_vel</topic>
+    </plugin>
+    
+    <!-- Gripper Controllers -->
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>left_finger_joint</joint_name>
+      <initial_velocity>0.0</initial_velocity>
+      <topic>left_finger_joint/cmd_vel</topic>
+    </plugin>
+    <plugin filename="gz-sim-joint-controller-system" name="gz::sim::systems::JointController">
+      <joint_name>right_finger_joint</joint_name>
+      <initial_velocity>0.0</initial_velocity>
+      <topic>right_finger_joint/cmd_vel</topic>
     </plugin>
   </gazebo>
 
   <!-- Camera Plugin -->
   <gazebo reference="camera_link">
-    <sensor type="depth" name="camera">
+    <sensor name="camera" type="camera">
       <update_rate>30.0</update_rate>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <topic>camera/image_raw</topic>
       <camera>
         <horizontal_fov>1.047198</horizontal_fov>
         <image>
@@ -404,32 +450,7 @@
           <far>3</far>
         </clip>
       </camera>
-      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-        <ros>
-          <namespace>/camera</namespace>
-        </ros>
-        <camera_name>color</camera_name>
-        <frame_name>camera_optical_frame</frame_name>
-        <hack_baseline>0.07</hack_baseline>
-      </plugin>
     </sensor>
-  </gazebo>
-
-  <!-- Joint State Publisher -->
-  <gazebo>
-    <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
-      <ros>
-        <namespace>/</namespace>
-      </ros>
-      <update_rate>50</update_rate>
-      <joint_name>shoulder_joint</joint_name>
-      <joint_name>shoulder_pitch_joint</joint_name>
-      <joint_name>elbow_joint</joint_name>
-      <joint_name>wrist_roll_joint</joint_name>
-      <joint_name>wrist_pitch_joint</joint_name>
-      <joint_name>left_finger_joint</joint_name>
-      <joint_name>right_finger_joint</joint_name>
-    </plugin>
   </gazebo>
 
 </robot>

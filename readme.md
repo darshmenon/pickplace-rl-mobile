@@ -236,12 +236,10 @@ Edit `worlds/pickplace_world.world` to adjust:
 *Screenshots and videos will be added after training completion*
 
 #### Simulation Environment
-![Gazebo Simulation](./demos/gazebo_screenshot.png)
-*Robot in Gazebo with object bin and target zone*
+*Actual simulation screenshots will be added after running the simulation.*
 
 #### Robot Visualization
-![RViz Visualization](./demos/rviz_screenshot.png)
-*Robot model visualization in RViz*
+*Robot model visualization in RViz will be added here.*
 
 ---
 

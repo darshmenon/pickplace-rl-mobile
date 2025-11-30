@@ -23,30 +23,50 @@ def generate_launch_description():
     
     robot_description = {'robot_description': robot_description_content}
     
-    # Gazebo launch
+    # Gazebo Sim launch
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            os.path.join(get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')
+            os.path.join(get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')
         ]),
         launch_arguments={
-            'world': world_file,
-            'verbose': 'true'
+            'gz_args': f'-r {world_file}'
         }.items()
     )
     
     # Spawn robot
     spawn_robot = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        name='spawn_pickplace_robot',
-        output='screen',
+        package='ros_gz_sim',
+        executable='create',
         arguments=[
-            '-entity', 'pickplace_robot',
+            '-name', 'pickplace_robot',
             '-topic', 'robot_description',
             '-x', '0.0',
             '-y', '0.0',
-            '-z', '0.0'
-        ]
+            '-z', '0.1'
+        ],
+        output='screen'
+    )
+    
+    # Bridge
+    bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
+            '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
+            '/joint_states@sensor_msgs/msg/JointState@gz.msgs.Model',
+            '/camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            # Joint command bridges
+            '/shoulder_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
+            '/shoulder_pitch_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
+            '/elbow_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
+            '/wrist_roll_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
+            '/wrist_pitch_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
+            '/left_finger_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
+            '/right_finger_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double'
+        ],
+        output='screen'
     )
     
     # Robot state publisher
@@ -58,17 +78,9 @@ def generate_launch_description():
         parameters=[robot_description]
     )
     
-    # Joint state publisher (for reading joint states)
-    joint_state_publisher = Node(
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher',
-        output='screen'
-    )
-    
     return LaunchDescription([
         gazebo,
         robot_state_publisher,
-        joint_state_publisher,
         spawn_robot,
+        bridge,
     ])
