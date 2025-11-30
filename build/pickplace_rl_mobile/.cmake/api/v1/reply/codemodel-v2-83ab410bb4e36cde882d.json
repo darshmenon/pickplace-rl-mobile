@@ -1,0 +1,97 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-d13e927a4266bf2efe35.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "pickplace_rl_mobile",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_pickplace_rl_mobile_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_pickplace_rl_mobile_egg-2d87f8a50a7be8d56197.json",
+					"name" : "ament_cmake_python_build_pickplace_rl_mobile_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_pickplace_rl_mobile::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_pickplace_rl_mobile-d3029733464f27cb2411.json",
+					"name" : "ament_cmake_python_copy_pickplace_rl_mobile",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_pickplace_rl_mobile_setup::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_pickplace_rl_mobile_setup-8ae3a23d1b61cf125c3f.json",
+					"name" : "ament_cmake_python_copy_pickplace_rl_mobile_setup",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "pickplace_rl_mobile_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-pickplace_rl_mobile_uninstall-0a156a64e8f81b504b5f.json",
+					"name" : "pickplace_rl_mobile_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-8a1294b591e090b21d11.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/darsh/pickplace_rl_mobile/build/pickplace_rl_mobile",
+		"source" : "/home/darsh/pickplace_rl_mobile/src/pickplace_rl_mobile"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 6
+	}
+}
