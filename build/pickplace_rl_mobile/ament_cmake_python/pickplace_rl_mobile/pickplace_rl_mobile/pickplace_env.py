@@ -7,7 +7,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Float64MultiArray
+from std_msgs.msg import Float64MultiArray, Float64
 import time
 
 class PickPlaceEnv(gym.Env):
@@ -45,11 +45,15 @@ class PickPlaceEnv(gym.Env):
         
         # Publishers
         self.cmd_vel_pub = self.node.create_publisher(Twist, '/cmd_vel', 10)
-        self.joint_vel_pub = self.node.create_publisher(
-            Float64MultiArray, 
-            '/arm_joint_commands', 
-            10
-        )
+        
+        # Joint velocity publishers (individual topics for Gazebo Harmonic)
+        self.shoulder_pub = self.node.create_publisher(Float64, '/shoulder_joint/cmd_vel', 10)
+        self.shoulder_pitch_pub = self.node.create_publisher(Float64, '/shoulder_pitch_joint/cmd_vel', 10)
+        self.elbow_pub = self.node.create_publisher(Float64, '/elbow_joint/cmd_vel', 10)
+        self.wrist_roll_pub = self.node.create_publisher(Float64, '/wrist_roll_joint/cmd_vel', 10)
+        self.wrist_pitch_pub = self.node.create_publisher(Float64, '/wrist_pitch_joint/cmd_vel', 10)
+        self.left_finger_pub = self.node.create_publisher(Float64, '/left_finger_joint/cmd_vel', 10)
+        self.right_finger_pub = self.node.create_publisher(Float64, '/right_finger_joint/cmd_vel', 10)
         
         # Subscribers
         self.joint_state_sub = self.node.create_subscription(
@@ -182,13 +186,21 @@ class PickPlaceEnv(gym.Env):
         rclpy.spin_once(self.node, timeout_sec=0.01)
         
         # Apply actions (scale to appropriate ranges)
+        # Action: [shoulder, shoulder_pitch, elbow, wrist_roll, wrist_pitch, gripper]
         joint_velocities = action[:5] * 0.5  # Scale down for safety
         gripper_command = action[5]
         
-        # Publish joint velocities (simplified - in practice use JointTrajectory)
-        joint_vel_msg = Float64MultiArray()
-        joint_vel_msg.data = joint_velocities.tolist()
-        self.joint_vel_pub.publish(joint_vel_msg)
+        # Publish joint velocities to individual controllers
+        self.shoulder_pub.publish(Float64(data=float(joint_velocities[0])))
+        self.shoulder_pitch_pub.publish(Float64(data=float(joint_velocities[1])))
+        self.elbow_pub.publish(Float64(data=float(joint_velocities[2])))
+        self.wrist_roll_pub.publish(Float64(data=float(joint_velocities[3])))
+        self.wrist_pitch_pub.publish(Float64(data=float(joint_velocities[4])))
+        
+        # Gripper control (simplified: open/close based on sign)
+        gripper_vel = 0.1 if gripper_command > 0 else -0.1
+        self.left_finger_pub.publish(Float64(data=gripper_vel))
+        self.right_finger_pub.publish(Float64(data=gripper_vel))
         
         # Update object position if grasped (simplified physics)
         if self.object_grasped:
