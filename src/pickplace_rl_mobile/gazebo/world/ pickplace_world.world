@@ -1,0 +1,21 @@
+<sdf version="1.6">
+  <world name="pickplace_world">
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://cylinder</uri>
+      <pose>1 0 0.1 0 0 0</pose>
+    </include>
+      <!-- Spawn robot using ROS 2 spawn_entity node -->
+      <plugin name="spawn_robot" filename="libgazebo_ros_factory.so">
+        <ros>
+          <namespace>/</namespace>
+        </ros>
+        <robot_description_param>robot_description</robot_description_param>
+        <spawn_service>spawn_entity</spawn_service>
+        <initial_pose>0 0 0.1 0 0 0</initial_pose>
+        <name>pickplace_rl_mobile</name>
+      </plugin>
+  </world>
+</sdf>
