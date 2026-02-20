@@ -1,4 +1,4 @@
-from agent import DQNAgent
+from pickplace_rl_mobile.rl.agent import DQNAgent
 import numpy as np
 
 # Dummy environment interaction

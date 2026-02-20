@@ -1,4 +1,5 @@
 import random
+from collections import deque
 import numpy as np
 import torch
 import torch.nn as nn
@@ -23,7 +24,7 @@ class DQNAgent:
         self.optimizer = optim.Adam(self.model.parameters(), lr=lr)
         self.gamma = gamma
         self.epsilon = epsilon
-        self.memory = []
+        self.memory = deque(maxlen=10000)
         self.batch_size = 64
         self.update_target()
 
@@ -40,8 +41,6 @@ class DQNAgent:
 
     def remember(self, transition):
         self.memory.append(transition)
-        if len(self.memory) > 10000:
-            self.memory.pop(0)
 
     def train(self):
         if len(self.memory) < self.batch_size:
