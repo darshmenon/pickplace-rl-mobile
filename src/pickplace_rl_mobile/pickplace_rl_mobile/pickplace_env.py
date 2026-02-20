@@ -7,6 +7,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 from std_msgs.msg import Float64MultiArray, Float64
 import time
 
@@ -14,8 +15,8 @@ class PickPlaceEnv(gym.Env):
     """
     Gymnasium environment for pick-and-place RL training.
     
-    Observation: [joint_positions(5), end_effector_pos(3), object_pos(3), object_grasped(1)]
-    Action: [joint_velocities(5), gripper_control(1)]
+    Observation: [joint_positions(5), end_effector_pos(3), object_pos(3), object_grasped(1), current_phase(1), base_x(1), base_y(1), base_theta(1)]
+    Action: [joint_velocities(5), gripper_control(1), base_linear_vel(1), base_angular_vel(1)]
     """
     
     def __init__(self):
@@ -27,26 +28,26 @@ class PickPlaceEnv(gym.Env):
         
         self.node = Node('pickplace_env_node')
         
-        # Action space: 5 joint velocities + gripper control
+        # Action space: 5 arm joints + 1 gripper + 2 base (linear, angular)
         self.action_space = spaces.Box(
             low=-1.0, 
             high=1.0, 
-            shape=(6,), 
+            shape=(8,), 
             dtype=np.float32
         )
         
-        # Observation space: 5 joint positions + 3 ee pos + 3 obj pos + 1 grasped flag + 1 phase integer
+        # Observation space: 5 joint pos + 3 ee + 3 obj + 1 grasped + 1 phase + 3 base pose (x, y, theta)
         self.observation_space = spaces.Box(
             low=-np.inf, 
             high=np.inf, 
-            shape=(13,), 
+            shape=(16,), 
             dtype=np.float32
         )
         
         # Publishers
         self.cmd_vel_pub = self.node.create_publisher(Twist, '/cmd_vel', 10)
         
-        # Joint velocity publishers (individual topics for Gazebo Harmonic)
+        # Joint velocity publishers
         self.shoulder_pub = self.node.create_publisher(Float64, '/shoulder_joint/cmd_vel', 10)
         self.shoulder_pitch_pub = self.node.create_publisher(Float64, '/shoulder_pitch_joint/cmd_vel', 10)
         self.elbow_pub = self.node.create_publisher(Float64, '/elbow_joint/cmd_vel', 10)
@@ -63,121 +64,137 @@ class PickPlaceEnv(gym.Env):
             10
         )
         
+        self.odom_sub = self.node.create_subscription(
+            Odometry,
+            '/odom',
+            self.odom_callback,
+            10
+        )
+        
         # State variables
-        self.joint_positions = np.zeros(7)  # 5 arm joints + 2 gripper
+        self.joint_positions = np.zeros(7)
         self.joint_velocities = np.zeros(7)
+        self.base_pose = np.zeros(3) # x, y, theta
         self.episode_steps = 0
         self.max_episode_steps = 800
         
-        # Target locations
-        self.object_start_pos = np.array([0.6, 0.0, 0.055])
+        # Targets
+        self.object_start_pos = np.array([0.6, 0.0, 0.055]) # Local space
         self.target_pos = np.array([0.6, 0.5, 0.1])
         self.object_pos = self.object_start_pos.copy()
         self.object_grasped = False
         
-        # State Machine Phase Tracking
-        # 0: APPROACH, 1: LOWER, 2: GRASP, 3: LIFT, 4: MOVE, 5: RELEASE
         self.current_phase = 0
         self.prev_distance = None
         
     def joint_state_callback(self, msg):
-        """Callback to update joint states from ROS."""
         if len(msg.position) >= 7:
             self.joint_positions = np.array(msg.position[:7])
             self.joint_velocities = np.array(msg.velocity[:7]) if len(msg.velocity) >= 7 else np.zeros(7)
+            
+    def odom_callback(self, msg):
+        # Extract x, y from odometry
+        x = msg.pose.pose.position.x
+        y = msg.pose.pose.position.y
+        
+        # Extract yaw from quaternion calculation
+        q = msg.pose.pose.orientation
+        siny_cosp = 2 * (q.w * q.z + q.x * q.y)
+        cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z)
+        theta = np.arctan2(siny_cosp, cosy_cosp)
+        
+        self.base_pose = np.array([x, y, theta])
     
     def get_end_effector_pos(self):
-        """Compute end effector position using forward kinematics (simplified)."""
-        base_height = 0.2  # base_link + arm_base
-        
+        """Relative EE pos to base."""
+        base_height = 0.2
         shoulder_angle = self.joint_positions[0]
         shoulder_pitch = self.joint_positions[1]
         elbow = self.joint_positions[2]
         
-        link1_length = 0.24  # arm_link1 height
-        link2_length = 0.24  # arm_link2 length
-        link3_length = 0.20  # arm_link3 length
+        link1_length = 0.24 
+        link2_length = 0.24
+        link3_length = 0.20
         
         z = base_height + link1_length
-        
         x_local = link2_length * np.cos(shoulder_pitch) + link3_length * np.cos(shoulder_pitch + elbow)
         z_local = link2_length * np.sin(shoulder_pitch) + link3_length * np.sin(shoulder_pitch + elbow)
         
-        x = 0.1 + x_local * np.cos(shoulder_angle)  # 0.1 is base offset
+        x = 0.1 + x_local * np.cos(shoulder_angle)
         y = x_local * np.sin(shoulder_angle)
         z = z + z_local
         
         return np.array([x, y, z])
     
     def get_observation(self):
-        """Get current observation."""
         ee_pos = self.get_end_effector_pos()
         
         obs = np.concatenate([
-            self.joint_positions[:5],  # 5 arm joints
+            self.joint_positions[:5],
             ee_pos,
             self.object_pos,
             [float(self.object_grasped)],
-            [float(self.current_phase)]
+            [float(self.current_phase)],
+            self.base_pose
         ])
         
         return obs.astype(np.float32)
     
     def compute_reward(self, ee_pos):
-        """Compute state-machine based reward."""
         reward = 0.0
         terminated = False
         
         gripper_pos = np.mean(self.joint_positions[5:7])
         
-        # Collision Check: Reaching too low while NOT lowering/grasping/releasing
+        # Absolute Object Pos in world
+        # Roughly base pos + local ee pos
+        # Simplifying for training context: treat object pos as relative for the state machine logic
+        
         if ee_pos[2] < 0.10 and self.current_phase not in [1, 2, 5]:
-            return -100.0, True # Crash penalty
+            return -100.0, True
 
-        # State Machine Progress Tracking
-        if self.current_phase == 0:  # APPROACH
-            # Goal: Get ee_pos (x,y) above object_pos (x,y), keep z safely up
+        if self.current_phase == 0:  
             target_xy = self.object_pos[:2]
             ee_xy = ee_pos[:2]
-            dist_xy = np.linalg.norm(target_xy - ee_xy)
+            
+            # Distance from base to object directly influences approach
+            base_dist_xy = np.linalg.norm(target_xy - self.base_pose[:2])
+            
+            # Combine base dist and arm dist
+            dist_xy = np.linalg.norm(target_xy - ee_xy) + (0.5 * base_dist_xy)
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_xy) * 10.0
                 
             self.prev_distance = dist_xy
             
-            # Transition to LOWER
-            if dist_xy < 0.05 and ee_pos[2] > 0.15:
+            if dist_xy < 0.15 and ee_pos[2] > 0.15:
                 self.current_phase = 1
                 self.prev_distance = None
                 reward += 20.0
                 
-        elif self.current_phase == 1:  # LOWER
-            # Goal: Lower z to object z
-            dist_z = abs(ee_pos[2] - 0.07) # slightly above object center
+        elif self.current_phase == 1: 
+            dist_z = abs(ee_pos[2] - 0.07) 
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_z) * 10.0
                 
             self.prev_distance = dist_z
             
-            # Transition to GRASP
             if dist_z < 0.02:
                 self.current_phase = 2
                 self.prev_distance = None
                 reward += 20.0
                 
-        elif self.current_phase == 2:  # GRASP
-            # Goal: Close Gripper
-            if gripper_pos < 0.02: # Gripper closed
+        elif self.current_phase == 2:  
+            if gripper_pos < 0.02: 
                 self.object_grasped = True
                 self.current_phase = 3
-                reward += 50.0 # Substantial bonus
+                reward += 50.0 
             else:
-                reward -= 0.1 # Small penalty for dawdling
+                reward -= 0.1 
                 
-        elif self.current_phase == 3:  # LIFT
-            # Goal: Raise object Z safely
+        elif self.current_phase == 3:  
             dist_z = abs(ee_pos[2] - 0.25)
             
             if self.prev_distance is not None:
@@ -185,29 +202,29 @@ class PickPlaceEnv(gym.Env):
                 
             self.prev_distance = dist_z
             
-            # Transition
             if dist_z < 0.05:
                 self.current_phase = 4
                 self.prev_distance = None
                 reward += 20.0
                 
-        elif self.current_phase == 4:  # MOVE_TO_TARGET
-            # Goal: Move XY to target XY
+        elif self.current_phase == 4:  
             target_xy = self.target_pos[:2]
             ee_xy = ee_pos[:2]
-            dist_xy = np.linalg.norm(target_xy - ee_xy)
+            
+            base_dist_xy = np.linalg.norm(target_xy - self.base_pose[:2])
+            dist_xy = np.linalg.norm(target_xy - ee_xy) + (0.5 * base_dist_xy)
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_xy) * 10.0
                 
             self.prev_distance = dist_xy
             
-            if dist_xy < 0.05:
+            if dist_xy < 0.15:
                 self.current_phase = 5
                 self.prev_distance = None
                 reward += 50.0
 
-        elif self.current_phase == 5:  # RELEASE (and implicitly lower to target)
+        elif self.current_phase == 5: 
             dist = np.linalg.norm(ee_pos - self.target_pos)
             
             if self.prev_distance is not None:
@@ -215,22 +232,22 @@ class PickPlaceEnv(gym.Env):
                 
             self.prev_distance = dist
             
-            if dist < 0.08 and gripper_pos > 0.02: # Lowered AND opened
+            if dist < 0.08 and gripper_pos > 0.02: 
                 self.object_grasped = False
-                reward += 100.0 # Final Success
+                reward += 100.0 
                 terminated = True
                 
-        # Smoothing penalty
         reward -= 0.01 * np.sum(np.abs(self.joint_velocities[:5]))
         
         return reward, terminated
 
     def step(self, action):
-        """Execute one step in the environment."""
         rclpy.spin_once(self.node, timeout_sec=0.01)
         
         joint_velocities = action[:5] * 0.5
         gripper_command = action[5]
+        base_linear_vel = action[6] * 0.5   # Scale max speed
+        base_angular_vel = action[7] * 1.0  # Scale turning speed
         
         self.shoulder_pub.publish(Float64(data=float(joint_velocities[0])))
         self.shoulder_pitch_pub.publish(Float64(data=float(joint_velocities[1])))
@@ -241,6 +258,12 @@ class PickPlaceEnv(gym.Env):
         gripper_vel = 0.5 if gripper_command > 0 else -0.5
         self.left_finger_pub.publish(Float64(data=gripper_vel))
         self.right_finger_pub.publish(Float64(data=gripper_vel))
+        
+        # Base Command
+        twist_msg = Twist()
+        twist_msg.linear.x = float(base_linear_vel)
+        twist_msg.angular.z = float(base_angular_vel)
+        self.cmd_vel_pub.publish(twist_msg)
         
         if self.object_grasped:
             ee_pos = self.get_end_effector_pos()
@@ -260,7 +283,6 @@ class PickPlaceEnv(gym.Env):
         return obs, reward, terminated, truncated, {}
     
     def reset(self, seed=None, options=None):
-        """Reset the environment."""
         super().reset(seed=seed)
         
         self.episode_steps = 0
@@ -268,11 +290,14 @@ class PickPlaceEnv(gym.Env):
         self.current_phase = 0
         self.prev_distance = None
         
-        # Randomize Object Location within reach
-        random_x = 0.5 + np.random.rand() * 0.2 # 0.5 to 0.7
-        random_y = -0.2 + np.random.rand() * 0.4 # -0.2 to 0.2
+        random_x = 0.5 + np.random.rand() * 0.2
+        random_y = -0.2 + np.random.rand() * 0.4 
         self.object_start_pos = np.array([random_x, random_y, 0.055])
         self.object_pos = self.object_start_pos.copy()
+        
+        # Stop Base
+        zero_twist = Twist()
+        self.cmd_vel_pub.publish(zero_twist)
         
         for _ in range(10):
             rclpy.spin_once(self.node, timeout_sec=0.01)
@@ -281,9 +306,8 @@ class PickPlaceEnv(gym.Env):
         obs = self.get_observation()
         
         return obs, {}
-    
+
     def close(self):
-        """Cleanup."""
         if rclpy.ok():
             self.node.destroy_node()
             rclpy.shutdown()
