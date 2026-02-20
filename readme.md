@@ -17,11 +17,14 @@ This project combines multiple robotics concepts:
 
 The goal is to create an end-to-end autonomous mobile manipulator capable of performing pick-and-place tasks in simulated environments, with a clear path to real-world deployment.
 
+### Why this project?
+Most reinforcement learning robotics projects focus on either navigation (mobile robots) or manipulation (fixed-base arms). Combining both into a **mobile manipulator** offers a significantly more complex but capable system. By utilizing ROS 2, Gazebo Harmonic, and Stable-Baselines3, this project functions as a comprehensive boilerplate and educational resource for mastering the intersection of modern simulation, continuous control RL, and advanced sensor processing.
+
 ---
 
 ## System Architecture Deep-Dive
 
-This section explains how every component of the system works together, from sensors to decision-making.
+This section explains how every component of the system works together, from sensors to decision-making. The architecture is designed to be highly modular, explicitly separating perception, safety, and control so that real-world sensors (like a physical RealSense camera) can eventually substitute the simulated ones without modifying the RL policy.
 
 ### Overview
 
@@ -144,18 +147,20 @@ The Gymnasium environment wraps the ROS 2 simulation:
 | 6 | Base linear velocity | x0.5 m/s |
 | 7 | Base angular velocity | x1.0 rad/s |
 
-**6-Phase state machine:**
-The reward function guides the agent through a strict sequence, preventing random thrashing:
+**6-Phase state machine & Curriculum Learning:**
+Reinforcement learning for continuous control (like SAC) often struggles with sparse rewards in complex multi-step tasks. Therefore, the reward function guides the agent through a strict sequential curriculum, preventing random thrashing and dramatically speeding up convergence:
 1. **Phase 0 - APPROACH**: Navigate base + extend arm towards the object. Reward: dense distance reduction (base + arm + angular alignment)
 2. **Phase 1 - LOWER**: Lower the EE to grasp height (7cm). Reward: dense Z-distance
-3. **Phase 2 - GRASP**: Close gripper. Reward: +50 when gripper closes
+3. **Phase 2 - GRASP**: Close gripper. Reward: +50 (sparse bonus) when gripper closes
 4. **Phase 3 - LIFT**: Raise object to safe transport height (25cm). Reward: dense Z-distance
 5. **Phase 4 - MOVE TO TARGET**: Navigate to the target zone. Reward: dense XY-distance
-6. **Phase 5 - RELEASE**: Lower to target and open gripper. Reward: +100 for success
+6. **Phase 5 - RELEASE**: Lower to target and open gripper. Reward: +100 (sparse bonus) for overall success
 
-**Penalties:**
-- -100 instant termination if EE drops below 10cm during unsafe phases
-- -0.01 per timestep for joint velocity magnitude (smoothness)
+**Reward Shaping Mechanics:**
+- **Dense Rewards**: The agent receives continuous micro-rewards inversely proportional to its Euclidean distance to the current phase's objective.
+- **Penalties**: 
+  - Massive `-100` penalty and instant episode termination if the end-effector safety drops below 10cm during unsafe navigation phases (preventing hardware damage).
+  - Continuous `-0.01` penalty per timestep based on joint velocity magnitude, incentivizing smooth, energy-efficient motions.
 
 ### 5. Manipulation RL Node (`manip_rl_node.py`)
 
@@ -171,17 +176,15 @@ Key difference from training: instead of using hard-coded `self.object_pos`, it 
 
 ### 6. Domain Randomization (`domain_randomizer.py`)
 
-A utility module that can plug into the training env's `reset()` and `step()` methods to improve sim-to-real transfer:
+A utility module that plugs into the training environment's `reset()` and `step()` methods. Training an RL agent exclusively in a pristine simulation often leads to the **sim-to-real gap**, where the agent fails in the real world due to minor discrepancies (e.g., lighting, friction, sensor noise). Domain Randomization forces the agent to learn robust policies invariant to these discrepancies.
 
-- **Object position** — Randomized within configurable X/Y ranges around the bin
-- **Object size** — Scaled 80%-130% of nominal 4cm cube
-- **Object color** — HSV hue shifted around red, with saturation/brightness variation
-- **Target position** — Randomized within the target zone area
-- **Observation noise** — Gaussian noise on joint positions (0.01 rad std), odom (0.005m std), and heading (0.01 rad std)
-- **Action noise** — Small Gaussian perturbation (0.02 std) for robustness
-- **Physics** — Mass perturbation, friction variation, gravity noise
+- **Visual Randomization**: Object size is scaled (80%-130%) and HSV color hues are shifted around red, preventing the perception pipeline from overfitting to exact pixel values.
+- **Pose Randomization**: Object and target positions are randomized within the bin/target zones every episode so the agent learns a generalized policy rather than memorizing a single path.
+- **Sensor Observation Noise**: Gaussian noise is injected into joint positions (0.01 rad std), odometry (0.005m std), and LiDAR heading to simulate imperfect real-world encoders and SLAM.
+- **Action Noise**: Small Gaussian perturbations (0.02 std) are applied to the agent's actions, ensuring the policy doesn't rely on mathematically perfect motor execution.
+- **Dynamics Randomization**: Variations in mass, friction, and gravity (physics noise) force the agent to adapt its grasping and movement forces.
 
-All randomization is configurable via `RandomizationConfig` dataclass with per-feature enable flags.
+All randomization configurations are handled via a `RandomizationConfig` dataclass, allowing easy toggling of specific parameters during different stages of training.
 
 ### 7. Nav2 Navigation
 
