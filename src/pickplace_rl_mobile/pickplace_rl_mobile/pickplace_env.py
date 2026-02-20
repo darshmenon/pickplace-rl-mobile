@@ -166,22 +166,39 @@ class PickPlaceEnv(gym.Env):
         if self.current_phase == 0:  
             target_xy = self.object_pos[:2]
             ee_xy = ee_global[:2]
+            base_xy = self.base_pose[:2]
+            base_theta = self.base_pose[2]
             
-            # The base needs to drive close to the object 
-            base_dist_xy = np.linalg.norm(target_xy - self.base_pose[:2])
+            # Distance from base to absolute object position
+            base_dist_xy = np.linalg.norm(target_xy - base_xy)
             
             # The arm needs to extend its global coordinate to the object 
             arm_dist_xy = np.linalg.norm(target_xy - ee_xy)
             
-            dist_xy = base_dist_xy + arm_dist_xy
+            # --- ORIENTATION CALCULATION ---
+            # Calculate the angle from the base to the object
+            angle_to_target = np.arctan2(target_xy[1] - base_xy[1], target_xy[0] - base_xy[0])
+            
+            # Calculate angular difference (shortest path)
+            angle_diff = angle_to_target - base_theta
+            
+            # Normalize angle difference to [-pi, pi]
+            while angle_diff > np.pi: angle_diff -= 2 * np.pi
+            while angle_diff < -np.pi: angle_diff += 2 * np.pi
+            
+            abs_angle_diff = abs(angle_diff)
+            
+            # Total distance metric combines base dist, arm dist, and angular diff
+            # We scale angular diff so it's comparable to distance (e.g. pi rad diff ~ 1.0m diff)
+            dist_xy = base_dist_xy + arm_dist_xy + (abs_angle_diff * 0.5)
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_xy) * 10.0
                 
             self.prev_distance = dist_xy
             
-            # Transition condition: arm is near target XY, base is reasonably close, height is safe
-            if arm_dist_xy < 0.10 and base_dist_xy < 0.8 and ee_global[2] > 0.15:
+            # Transition condition: arm is near target XY, base is reasonably close, height is safe, and pointing towards object
+            if arm_dist_xy < 0.10 and base_dist_xy < 0.8 and abs_angle_diff < 0.5 and ee_global[2] > 0.15:
                 self.current_phase = 1
                 self.prev_distance = None
                 reward += 20.0
