@@ -126,6 +126,18 @@ class PickPlaceEnv(gym.Env):
         
         return np.array([x, y, z])
     
+    def get_global_ee_pos(self):
+        """Transform local EE pos to global world frame using odometry."""
+        local_ee = self.get_end_effector_pos()
+        bx, by, btheta = self.base_pose
+        
+        # 2D Rotation + Translation
+        gx = bx + local_ee[0] * np.cos(btheta) - local_ee[1] * np.sin(btheta)
+        gy = by + local_ee[0] * np.sin(btheta) + local_ee[1] * np.cos(btheta)
+        gz = local_ee[2] # Assuming diff drive base is flat on ground (z=0)
+        
+        return np.array([gx, gy, gz])
+    
     def get_observation(self):
         ee_pos = self.get_end_effector_pos()
         
@@ -140,41 +152,42 @@ class PickPlaceEnv(gym.Env):
         
         return obs.astype(np.float32)
     
-    def compute_reward(self, ee_pos):
+    def compute_reward(self):
         reward = 0.0
         terminated = False
         
         gripper_pos = np.mean(self.joint_positions[5:7])
+        ee_global = self.get_global_ee_pos()
         
-        # Absolute Object Pos in world
-        # Roughly base pos + local ee pos
-        # Simplifying for training context: treat object pos as relative for the state machine logic
-        
-        if ee_pos[2] < 0.10 and self.current_phase not in [1, 2, 5]:
+        # Collision Check: Reaching lower than bin while NOT lowering/grasping/releasing
+        if ee_global[2] < 0.10 and self.current_phase not in [1, 2, 5]:
             return -100.0, True
 
         if self.current_phase == 0:  
             target_xy = self.object_pos[:2]
-            ee_xy = ee_pos[:2]
+            ee_xy = ee_global[:2]
             
-            # Distance from base to object directly influences approach
+            # The base needs to drive close to the object 
             base_dist_xy = np.linalg.norm(target_xy - self.base_pose[:2])
             
-            # Combine base dist and arm dist
-            dist_xy = np.linalg.norm(target_xy - ee_xy) + (0.5 * base_dist_xy)
+            # The arm needs to extend its global coordinate to the object 
+            arm_dist_xy = np.linalg.norm(target_xy - ee_xy)
+            
+            dist_xy = base_dist_xy + arm_dist_xy
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_xy) * 10.0
                 
             self.prev_distance = dist_xy
             
-            if dist_xy < 0.15 and ee_pos[2] > 0.15:
+            # Transition condition: arm is near target XY, base is reasonably close, height is safe
+            if arm_dist_xy < 0.10 and base_dist_xy < 0.8 and ee_global[2] > 0.15:
                 self.current_phase = 1
                 self.prev_distance = None
                 reward += 20.0
                 
         elif self.current_phase == 1: 
-            dist_z = abs(ee_pos[2] - 0.07) 
+            dist_z = abs(ee_global[2] - 0.07) 
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_z) * 10.0
@@ -195,7 +208,7 @@ class PickPlaceEnv(gym.Env):
                 reward -= 0.1 
                 
         elif self.current_phase == 3:  
-            dist_z = abs(ee_pos[2] - 0.25)
+            dist_z = abs(ee_global[2] - 0.25)
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_z) * 10.0
@@ -209,23 +222,25 @@ class PickPlaceEnv(gym.Env):
                 
         elif self.current_phase == 4:  
             target_xy = self.target_pos[:2]
-            ee_xy = ee_pos[:2]
+            ee_xy = ee_global[:2]
             
             base_dist_xy = np.linalg.norm(target_xy - self.base_pose[:2])
-            dist_xy = np.linalg.norm(target_xy - ee_xy) + (0.5 * base_dist_xy)
+            arm_dist_xy = np.linalg.norm(target_xy - ee_xy)
+            
+            dist_xy = arm_dist_xy + base_dist_xy
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist_xy) * 10.0
                 
             self.prev_distance = dist_xy
             
-            if dist_xy < 0.15:
+            if arm_dist_xy < 0.15:
                 self.current_phase = 5
                 self.prev_distance = None
                 reward += 50.0
 
         elif self.current_phase == 5: 
-            dist = np.linalg.norm(ee_pos - self.target_pos)
+            dist = np.linalg.norm(ee_global - self.target_pos)
             
             if self.prev_distance is not None:
                 reward += (self.prev_distance - dist) * 10.0
@@ -266,16 +281,16 @@ class PickPlaceEnv(gym.Env):
         self.cmd_vel_pub.publish(twist_msg)
         
         if self.object_grasped:
-            ee_pos = self.get_end_effector_pos()
-            self.object_pos = ee_pos.copy()
+            # We move the object globally based on the global EE!
+            ee_global = self.get_global_ee_pos()
+            self.object_pos = ee_global.copy()
             self.object_pos[2] -= 0.05
         
         time.sleep(0.01)
         
-        ee_pos = self.get_end_effector_pos()
         obs = self.get_observation()
         
-        reward, terminated = self.compute_reward(ee_pos)
+        reward, terminated = self.compute_reward()
         
         self.episode_steps += 1
         truncated = self.episode_steps >= self.max_episode_steps

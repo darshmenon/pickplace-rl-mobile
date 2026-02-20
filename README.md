@@ -1,6 +1,9 @@
-# PickPlace RL Mobile Robot
+# Pick-and-Place RL Mobile Robot
 
-This is a deep reinforcement learning environment built on top of ROS2 (Humble) and Gazebo Harmonic to train a mobile pick and place robot using Stable Baselines 3 (SAC).
+This repository contains a ROS 2 Jazzy workspace featuring a custom 4-DOF mobile manipulator robot in a Gazebo Harmonic simulation, integrated with Stable Baselines 3 for Reinforcement Learning (RL) training.
+
+![Gazebo Robot](/home/asimov/pickplace-rl-mobile/images/gazebo_robot.png)
+![Gazebo Simulation](/home/asimov/pickplace-rl-mobile/images/gazebo_simulation.png)
 
 ## Previews
 Here is a screenshot of the trained environment inside Gazebo:
