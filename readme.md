@@ -238,7 +238,7 @@ The Nav2 stack provides autonomous goal-oriented navigation for the mobile base:
 ## Directory Structure
 
 ```
-pickplace-rl-mobile/
+pickplace-rl-mobile-manipulator/
 ├── images/                          # Screenshots and media
 ├── rl_models/                       # Saved RL model checkpoints
 ├── rviz/                            # RViz configuration files
@@ -308,8 +308,8 @@ pip install gymnasium stable-baselines3 torch numpy
 ### 1. Clone the Repository
 ```bash
 cd ~/
-git clone https://github.com/darshmenon/pickplace-rl-mobile.git
-cd pickplace-rl-mobile
+git clone https://github.com/darshmenon/pickplace-rl-mobile-manipulator.git
+cd pickplace-rl-mobile-manipulator
 ```
 
 ### 2. Build the Workspace
@@ -532,6 +532,6 @@ MIT License
   author = {Menon, Darsh},
   title = {Pick-and-Place RL Mobile Manipulator},
   year = {2025},
-  url = {https://github.com/darshmenon/pickplace-rl-mobile}
+  url = {https://github.com/darshmenon/pickplace-rl-mobile-manipulator}
 }
 ```
