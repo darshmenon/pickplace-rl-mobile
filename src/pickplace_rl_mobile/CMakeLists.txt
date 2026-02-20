@@ -39,6 +39,26 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
   RENAME demo_pick_place
 )
+install(PROGRAMS
+  pickplace_rl_mobile/perception_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME perception_node
+)
+install(PROGRAMS
+  pickplace_rl_mobile/manip_rl_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME manip_rl_node
+)
+install(PROGRAMS
+  pickplace_rl_mobile/safety_guard.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME safety_guard
+)
+install(PROGRAMS
+  pickplace_rl_mobile/smart_pick_place.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME smart_pick_place
+)
 
 # Install config files
 
