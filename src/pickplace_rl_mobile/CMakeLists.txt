@@ -23,6 +23,23 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+# Install executable scripts
+install(PROGRAMS
+  pickplace_rl_mobile/train_rl.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME train_rl
+)
+install(PROGRAMS
+  pickplace_rl_mobile/test_policy.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME test_policy
+)
+install(PROGRAMS
+  pickplace_rl_mobile/demo_pick_place.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME demo_pick_place
+)
+
 # Install config files
 
 

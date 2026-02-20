@@ -84,7 +84,7 @@ def main():
     parser.add_argument('--save-dir', type=str, default='./rl_models',
                         help='Directory to save models (default: ./rl_models)')
     
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
     
     train(total_timesteps=args.timesteps, save_dir=args.save_dir)
 

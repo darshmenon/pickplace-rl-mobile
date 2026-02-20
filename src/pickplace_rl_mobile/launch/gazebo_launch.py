@@ -38,6 +38,7 @@ def generate_launch_description():
         package='ros_gz_sim',
         executable='create',
         arguments=[
+            '-world', 'pickplace_world',
             '-name', 'pickplace_robot',
             '-topic', 'robot_description',
             '-x', '0.0',
@@ -56,15 +57,15 @@ def generate_launch_description():
             '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
             '/joint_states@sensor_msgs/msg/JointState@gz.msgs.Model',
             '/camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
             # Joint command bridges
-            '/shoulder_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
-            '/shoulder_pitch_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
-            '/elbow_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
-            '/wrist_roll_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
-            '/wrist_pitch_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
-            '/left_finger_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double',
-            '/right_finger_joint/cmd_vel@std_msgs/msg/Float64]gz.msgs.Double'
+            '/shoulder_joint/cmd_vel@std_msgs/msg/Float64@gz.msgs.Double',
+            '/shoulder_pitch_joint/cmd_vel@std_msgs/msg/Float64@gz.msgs.Double',
+            '/elbow_joint/cmd_vel@std_msgs/msg/Float64@gz.msgs.Double',
+            '/wrist_roll_joint/cmd_vel@std_msgs/msg/Float64@gz.msgs.Double',
+            '/wrist_pitch_joint/cmd_vel@std_msgs/msg/Float64@gz.msgs.Double',
+            '/left_finger_joint/cmd_vel@std_msgs/msg/Float64@gz.msgs.Double',
+            '/right_finger_joint/cmd_vel@std_msgs/msg/Float64@gz.msgs.Double'
         ],
         output='screen'
     )
@@ -75,7 +76,7 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[robot_description]
+        parameters=[{'robot_description': robot_description_content, 'use_sim_time': True}]
     )
     
     return LaunchDescription([

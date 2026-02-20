@@ -27,15 +27,16 @@ The goal is to create an end-to-end autonomous mobile manipulator capable of per
 ### 2. Reinforcement Learning
 - **Algorithm**: SAC (Soft Actor-Critic) for continuous control
 - **Environment**: Custom Gymnasium environment with ROS 2 integration
-- **Observation Space**: Joint positions, end-effector position, object position, grasp state
+- **Observation Space**: Joint positions, end-effector position, object position, grasp state, and current state-machine phase (0-5)
 - **Action Space**: Joint velocities + gripper control
+- **State Machine Training**: The agent follows a precise sequence to avoid random thrashing: 
+   - `APPROACH` -> `LOWER` -> `GRASP` -> `LIFT` -> `MOVE_TO_TARGET` -> `RELEASE` -> `HOME`
 - **Reward Shaping**: 
-  - Approaching object: distance reduction rewards
-  - Grasping: bonus for successful grasp
-  - Transport: rewards for moving object to target
-  - Placement: large bonus for successful placement
+  - Substantial bonus rewards for transitioning between the specific state phases.
+  - Dense rewards for minimizing distance to the current phase goal (e.g., approach object, lower safely).
+  - Heavy Collision Penalty: End episodes immediately with massive penalty if reaching too low into the bin at the wrong time.
   - Smoothness penalty: encourages smooth motions
-
+  
 ### 3. Simulation
 - **Gazebo Classic**: Full physics simulation
 - **World**: Custom environment with object bin and target zone
@@ -236,7 +237,7 @@ Edit `worlds/pickplace_world.world` to adjust:
 *Screenshots and videos will be added after training completion*
 
 #### Simulation Environment
-![Gazebo Simulation](./demos/gazebo_screenshot.png)
+![Gazebo Simulation](./images/gazebo_simulation.png)
 
 #### Robot Visualization
 *Robot model visualization in RViz will be added here.*

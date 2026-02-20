@@ -14,7 +14,7 @@ def generate_launch_description():
     pkg_dir = get_package_share_directory('pickplace_rl_mobile')
     
     # World file path
-    world_path = os.path.join(pkg_dir, 'gazebo', 'world', 'pickplace_world.world')
+    world_path = os.path.join(pkg_dir, 'worlds', 'pickplace_world.world')
     
     # Alternative: Use SDF world file instead of .world if you have one
     # world_path = os.path.join(pkg_dir, 'gazebo', 'world', 'pickplace_world.sdf')

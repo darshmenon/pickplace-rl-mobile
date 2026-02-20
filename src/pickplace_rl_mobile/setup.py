@@ -10,7 +10,13 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', ['launch/display_launch.py', 'launch/gazebo_launch.py']),
+        ('share/' + package_name + '/launch', [
+            'launch/display_launch.py', 
+            'launch/gazebo_launch.py',
+            'launch/gazebo.launch.py',
+            'launch/rl_train.launch.py',
+            'launch/standalone_rl_training.launch.py'
+        ]),
         ('share/' + package_name + '/urdf', ['urdf/pickplace_mobile_arm.urdf']),
         ('share/' + package_name + '/worlds', ['worlds/pickplace_world.world']),
         ('share/' + package_name + '/config', ['config/training_config.yaml']),
@@ -29,6 +35,7 @@ setup(
             'safety_guard = pickplace_rl_mobile.safety_guard:main',
             'train_rl = pickplace_rl_mobile.train_rl:main',
             'test_policy = pickplace_rl_mobile.test_policy:main',
+            'smart_pick_place = pickplace_rl_mobile.smart_pick_place:main',
         ],
     },
 )
