@@ -1,14 +1,15 @@
-# Pick-and-Place RL Mobile Robot
+# ARES: UR3 Mobile Robot RL Pick and Place
 
 ## Overview
-The **Pick-and-Place RL Mobile Robot** is a ROS 2 Jazzy-based project that integrates a mobile robotic base and a 4-DOF robotic arm. The system uses **Reinforcement Learning (RL)** with the SAC (Soft Actor-Critic) algorithm to autonomously pick objects from a bin and place them at a target location.
+The **ARES UR3 Mobile Robot RL Pick and Place** is a ROS 2 Jazzy-based project that integrates a mobile robotic base and a 6-DOF UR3-based robotic arm. The system uses **Reinforcement Learning (RL)** with the SAC (Soft Actor-Critic) algorithm to autonomously pick objects from a bin and place them at a target location.
 
 This project combines multiple robotics concepts:
 - Mobile navigation with differential drive
-- 4-DOF robotic arm manipulation
+- 6-DOF UR3-based robotic arm manipulation
 - Parallel gripper for grasping
-- RGB-D camera perception with HSV color segmentation
-- 2D LiDAR for obstacle detection and Nav2 navigation
+- RGB and Depth cameras for RGB-D perception with HSV color segmentation
+- 2D LiDAR sensor for obstacle detection and Nav2 navigation
+- Wheel encoders for odometry and Joint State sensors for proprioception
 - RL-based policy learning with Stable-Baselines3
 - Real-time safety monitoring with emergency stop
 - Domain randomization for sim-to-real transfer
@@ -18,7 +19,7 @@ This project combines multiple robotics concepts:
 The goal is to create an end-to-end autonomous mobile manipulator capable of performing pick-and-place tasks in simulated environments, with a clear path to real-world deployment.
 
 ### Why this project?
-Most reinforcement learning robotics projects focus on either navigation (mobile robots) or manipulation (fixed-base arms). Combining both into a **mobile manipulator** offers a significantly more complex but capable system. By utilizing ROS 2, Gazebo Harmonic, and Stable-Baselines3, this project functions as a comprehensive boilerplate and educational resource for mastering the intersection of modern simulation, continuous control RL, and advanced sensor processing.
+Most reinforcement learning robotics projects focus on either navigation (mobile robots) or manipulation (fixed-base arms). Combining both into a **mobile manipulator** (like ARES) offers a significantly more complex but capable system. By utilizing ROS 2, Gazebo Harmonic, and Stable-Baselines3, this project functions as a comprehensive boilerplate and educational resource for mastering the intersection of modern simulation, continuous control RL, and advanced sensor processing.
 
 ---
 
@@ -68,12 +69,13 @@ The robot is described in a single URDF file (`pickplace_mobile_arm.urdf`) and c
 - Controlled via `/cmd_vel` (Twist messages) through the Gazebo `DiffDrive` plugin
 - Publishes odometry on `/odom` at 50Hz
 
-**4-DOF Robotic Arm:**
-- **Shoulder joint** (revolute, Z-axis rotation) — pans the arm left/right
-- **Shoulder pitch joint** (revolute, Y-axis) — lifts the arm up/down
+**6-DOF UR3-based Robotic Arm:**
+- **Shoulder pan joint** (revolute, Z-axis rotation) — pans the arm left/right
+- **Shoulder lift joint** (revolute, Y-axis) — lifts the arm up/down
 - **Elbow joint** (revolute, Y-axis) — bends the forearm
-- **Wrist pitch joint** (revolute, Y-axis) — angles the gripper
-- Plus a wrist roll joint for rotation
+- **Wrist 1 joint** (revolute, Y-axis)
+- **Wrist 2 joint** (revolute, Z-axis)
+- **Wrist 3 joint** (continuous, Y-axis) — rotates the gripper
 - Each joint has its own Gazebo `JointController` plugin accepting velocity commands
 
 **Parallel Gripper:**
@@ -496,15 +498,18 @@ Edit `worlds/pickplace_world.world`:
 ## Roadmap
 
 - [x] Mobile base with differential drive
-- [x] 4-DOF robotic arm with parallel gripper
+- [x] 4-DOF UR3-based robotic arm with parallel gripper
 - [x] SAC-based RL training pipeline
 - [x] RGB-D camera perception pipeline
 - [x] 2D LiDAR for obstacle detection
 - [x] Safety guard with emergency stop
 - [x] Nav2 navigation stack integration
 - [x] Domain randomization for sim-to-real
-- [ ] Real robot deployment (Jetson + RealSense)
+- [ ] Real robot deployment (Jetson + RealSense + ARES)
 - [ ] Multi-object sorting with color classification
+- [ ] VLA (Vision-Language-Action) model integration for open-vocabulary pick and place
+- [ ] Natural language commanding through audio/text interface
+- [ ] Dynamic obstacle avoidance using RL
 - [ ] MoveIt2 integration for motion planning
 - [ ] Sim-to-real transfer validation
 
