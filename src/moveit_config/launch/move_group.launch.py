@@ -32,7 +32,7 @@ def generate_launch_description():
 
     # Package names
     package_name_moveit_config = 'moveit_config'
-    package_name_ur_description = 'ur_description'
+    package_name_ur_description = 'pickplace_rl_mobile'
 
     # Declare the launch arguments
     declare_robot_name_cmd = DeclareLaunchArgument(
@@ -68,7 +68,7 @@ def generate_launch_description():
         moveit_config_share = FindPackageShare(package=package_name_moveit_config).find(package_name_moveit_config)
 
         # File paths from MoveIt config package
-        urdf_path_xacro = os.path.join(moveit_config_share, "config", "ur.urdf.xacro")
+        urdf_path_xacro = os.path.join(FindPackageShare(package=package_name_ur_description).find(package_name_ur_description), "urdf", "mobile_ur3.urdf")
         srdf_file_path = os.path.join(moveit_config_share, "config", f"{robot_name_str}.srdf")
         joint_limits_file_path = os.path.join(moveit_config_share, "config", "joint_limits.yaml")
         kinematics_file_path = os.path.join(moveit_config_share, "config", "kinematics.yaml")
