@@ -35,10 +35,6 @@ COLCON_CURRENT_PREFIX="/opt/ros/humble"
 _colcon_prefix_chain_sh_source_script "$COLCON_CURRENT_PREFIX/local_setup.sh"
 
 # setting COLCON_CURRENT_PREFIX avoids relying on the build time prefix of the sourced script
-COLCON_CURRENT_PREFIX="/home/asimov/facial-animatronic-ros2/install"
-_colcon_prefix_chain_sh_source_script "$COLCON_CURRENT_PREFIX/local_setup.sh"
-
-# setting COLCON_CURRENT_PREFIX avoids relying on the build time prefix of the sourced script
 COLCON_CURRENT_PREFIX="/home/asimov/fleet_management_beetle-arm/mobile_robots/navigation/install"
 _colcon_prefix_chain_sh_source_script "$COLCON_CURRENT_PREFIX/local_setup.sh"
 
@@ -59,11 +55,15 @@ COLCON_CURRENT_PREFIX="/home/asimov/install"
 _colcon_prefix_chain_sh_source_script "$COLCON_CURRENT_PREFIX/local_setup.sh"
 
 # setting COLCON_CURRENT_PREFIX avoids relying on the build time prefix of the sourced script
+COLCON_CURRENT_PREFIX="/home/asimov/fleet_management_beetle-arm/install"
+_colcon_prefix_chain_sh_source_script "$COLCON_CURRENT_PREFIX/local_setup.sh"
+
+# setting COLCON_CURRENT_PREFIX avoids relying on the build time prefix of the sourced script
 COLCON_CURRENT_PREFIX="/home/asimov/animatronics_head_ros2/install"
 _colcon_prefix_chain_sh_source_script "$COLCON_CURRENT_PREFIX/local_setup.sh"
 
 # setting COLCON_CURRENT_PREFIX avoids relying on the build time prefix of the sourced script
-COLCON_CURRENT_PREFIX="/home/asimov/fleet_management_beetle-arm/install"
+COLCON_CURRENT_PREFIX="/home/asimov/facial-animatronic-ros2/install"
 _colcon_prefix_chain_sh_source_script "$COLCON_CURRENT_PREFIX/local_setup.sh"
 
 

@@ -1,0 +1,59 @@
+# This config uses industrial_ci (https://github.com/ros-industrial/industrial_ci.git).
+# For troubleshooting, see readme (https://github.com/ros-industrial/industrial_ci/blob/master/README.rst)
+
+name: Build and Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - ros2
+
+jobs:
+  industrial_ci:
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+          - {ROS_DISTRO: rolling, ROS_REPO: main, CCOV_UPLOAD: true,
+             CMAKE_ARGS: "-DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS='--coverage' -DCMAKE_CXX_FLAGS='--coverage'",
+             AFTER_RUN_TARGET_TEST: './.ci.prepare_codecov',
+             ADDITIONAL_DEBS: 'curl lcov grep'}
+          - {ROS_DISTRO: rolling, ROS_REPO: testing, CCOV_UPLOAD: false}
+          - {ROS_DISTRO: iron, ROS_REPO: main, CCOV_UPLOAD: false}
+          - {ROS_DISTRO: humble, ROS_REPO: main, CCOV_UPLOAD: false}
+    env:
+      BEFORE_BUILD_TARGET_WORKSPACE: |
+        # https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu
+        ici_apt_install gnupg curl
+        curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server.gpg --dearmor
+        echo "deb [ arch=amd64 signed-by=/usr/share/keyrings/mongodb-server.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org.list
+        ici_cmd ici_asroot apt-get update -qq
+        ici_apt_install mongodb-org
+      UPSTREAM_WORKSPACE: warehouse_ros_mongo.repos
+      CCACHE_DIR: /home/runner/.ccache
+      BASEDIR: .base
+
+    name: ${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}${{ matrix.env.CCOV_UPLOAD && ' + ccov' || ''}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          save-always: true
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}-${{ github.sha }}
+          restore-keys: |
+            ccache-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}
+      - uses: ros-industrial/industrial_ci@master
+        env: ${{ matrix.env }}
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}
+          path: ${{ env.BASEDIR }}/target_ws/**/test_results/**/*.xml
+      - uses: codecov/codecov-action@v4
+        if: ${{ matrix.env.CCOV_UPLOAD }}
+        with:
+          files: ${{ env.BASEDIR }}/coverage.info

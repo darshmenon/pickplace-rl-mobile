@@ -59,6 +59,26 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
   RENAME smart_pick_place
 )
+install(PROGRAMS
+  pickplace_rl_mobile/vla_action_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME vla_action_node
+)
+install(PROGRAMS
+  pickplace_rl_mobile/vla_vision_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME vla_vision_node
+)
+install(PROGRAMS
+  pickplace_rl_mobile/vla_language_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME vla_language_node
+)
+install(PROGRAMS
+  pickplace_rl_mobile/vla_coordinator_node.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME vla_coordinator_node
+)
 
 # Install config files
 

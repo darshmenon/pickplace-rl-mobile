@@ -43,19 +43,7 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/environment" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/pythonpath.sh")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/environment" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/pythonpath.dsv")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/pickplace_rl_mobile-0.0.1-py3.10.egg-info" TYPE DIRECTORY FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_python/pickplace_rl_mobile/pickplace_rl_mobile.egg-info/")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/local/lib/python3.10/dist-packages/pickplace_rl_mobile" TYPE DIRECTORY FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/" REGEX "/[^/]*\\.pyc$" EXCLUDE REGEX "/\\_\\_pycache\\_\\_$" EXCLUDE)
+  include("/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_symlink_install/ament_cmake_symlink_install.cmake")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -64,15 +52,6 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
         "/usr/bin/python3" "-m" "compileall"
         "/home/asimov/pickplace-rl-mobile/install/pickplace_rl_mobile/local/lib/python3.10/dist-packages/pickplace_rl_mobile"
       )
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/" TYPE DIRECTORY FILES
-    "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/launch"
-    "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/urdf"
-    "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/config"
-    "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/worlds"
-    )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -88,62 +67,19 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/package_run_dependencies" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/pickplace_rl_mobile")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "perception_node" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/perception_node.py")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/parent_prefix_path" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/pickplace_rl_mobile")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "manip_rl_node" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/manip_rl_node.py")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/environment" TYPE FILE FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "safety_guard" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/safety_guard.py")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/environment" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/ament_prefix_path.dsv")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/environment" TYPE FILE FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/environment" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/path.dsv")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/local_setup.bash")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/local_setup.sh")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/local_setup.zsh")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/local_setup.dsv")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/package.dsv")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ament_index/resource_index/packages" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_index/share/ament_index/resource_index/packages/pickplace_rl_mobile")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile/cmake" TYPE FILE FILES
-    "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_core/pickplace_rl_mobileConfig.cmake"
-    "/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_core/pickplace_rl_mobileConfig-version.cmake"
-    )
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/pickplace_rl_mobile" TYPE FILE FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "smart_pick_place" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/smart_pick_place.py")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)

@@ -2,7 +2,11 @@ setup.cfg
 setup.py
 pickplace_rl_mobile/__init__.py
 pickplace_rl_mobile/demo_pick_place.py
+pickplace_rl_mobile/domain_randomizer.py
+pickplace_rl_mobile/manip_rl_node.py
+pickplace_rl_mobile/perception_node.py
 pickplace_rl_mobile/pickplace_env.py
+pickplace_rl_mobile/safety_guard.py
 pickplace_rl_mobile/smart_pick_place.py
 pickplace_rl_mobile/test_env_standalone.py
 pickplace_rl_mobile/test_policy.py

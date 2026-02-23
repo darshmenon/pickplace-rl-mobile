@@ -23,14 +23,14 @@ function _colcon_prefix_chain_powershell_source_script {
 
 # source chained prefixes
 _colcon_prefix_chain_powershell_source_script "/opt/ros/humble\local_setup.ps1"
-_colcon_prefix_chain_powershell_source_script "/home/asimov/facial-animatronic-ros2/install\local_setup.ps1"
 _colcon_prefix_chain_powershell_source_script "/home/asimov/fleet_management_beetle-arm/mobile_robots/navigation/install\local_setup.ps1"
 _colcon_prefix_chain_powershell_source_script "/home/asimov/chess-demo/install\local_setup.ps1"
 _colcon_prefix_chain_powershell_source_script "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/install\local_setup.ps1"
 _colcon_prefix_chain_powershell_source_script "/home/asimov/robot_arm_workspace/install\local_setup.ps1"
 _colcon_prefix_chain_powershell_source_script "/home/asimov/install\local_setup.ps1"
-_colcon_prefix_chain_powershell_source_script "/home/asimov/animatronics_head_ros2/install\local_setup.ps1"
 _colcon_prefix_chain_powershell_source_script "/home/asimov/fleet_management_beetle-arm/install\local_setup.ps1"
+_colcon_prefix_chain_powershell_source_script "/home/asimov/animatronics_head_ros2/install\local_setup.ps1"
+_colcon_prefix_chain_powershell_source_script "/home/asimov/facial-animatronic-ros2/install\local_setup.ps1"
 
 # source this prefix
 $env:COLCON_CURRENT_PREFIX=(Split-Path $PSCommandPath -Parent)

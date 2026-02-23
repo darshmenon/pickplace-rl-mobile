@@ -198,30 +198,30 @@ pickplace_rl_mobile_uninstall/fast:
 .PHONY : pickplace_rl_mobile_uninstall/fast
 
 #=============================================================================
-# Target rules for targets named ament_cmake_python_copy_pickplace_rl_mobile
+# Target rules for targets named ament_cmake_python_symlink_pickplace_rl_mobile
 
 # Build rule for target.
-ament_cmake_python_copy_pickplace_rl_mobile: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ament_cmake_python_copy_pickplace_rl_mobile
-.PHONY : ament_cmake_python_copy_pickplace_rl_mobile
+ament_cmake_python_symlink_pickplace_rl_mobile: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ament_cmake_python_symlink_pickplace_rl_mobile
+.PHONY : ament_cmake_python_symlink_pickplace_rl_mobile
 
 # fast build rule for target.
-ament_cmake_python_copy_pickplace_rl_mobile/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ament_cmake_python_copy_pickplace_rl_mobile.dir/build.make CMakeFiles/ament_cmake_python_copy_pickplace_rl_mobile.dir/build
-.PHONY : ament_cmake_python_copy_pickplace_rl_mobile/fast
+ament_cmake_python_symlink_pickplace_rl_mobile/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ament_cmake_python_symlink_pickplace_rl_mobile.dir/build.make CMakeFiles/ament_cmake_python_symlink_pickplace_rl_mobile.dir/build
+.PHONY : ament_cmake_python_symlink_pickplace_rl_mobile/fast
 
 #=============================================================================
-# Target rules for targets named ament_cmake_python_copy_pickplace_rl_mobile_setup
+# Target rules for targets named ament_cmake_python_symlink_pickplace_rl_mobile_setup
 
 # Build rule for target.
-ament_cmake_python_copy_pickplace_rl_mobile_setup: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ament_cmake_python_copy_pickplace_rl_mobile_setup
-.PHONY : ament_cmake_python_copy_pickplace_rl_mobile_setup
+ament_cmake_python_symlink_pickplace_rl_mobile_setup: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ament_cmake_python_symlink_pickplace_rl_mobile_setup
+.PHONY : ament_cmake_python_symlink_pickplace_rl_mobile_setup
 
 # fast build rule for target.
-ament_cmake_python_copy_pickplace_rl_mobile_setup/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/ament_cmake_python_copy_pickplace_rl_mobile_setup.dir/build.make CMakeFiles/ament_cmake_python_copy_pickplace_rl_mobile_setup.dir/build
-.PHONY : ament_cmake_python_copy_pickplace_rl_mobile_setup/fast
+ament_cmake_python_symlink_pickplace_rl_mobile_setup/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ament_cmake_python_symlink_pickplace_rl_mobile_setup.dir/build.make CMakeFiles/ament_cmake_python_symlink_pickplace_rl_mobile_setup.dir/build
+.PHONY : ament_cmake_python_symlink_pickplace_rl_mobile_setup/fast
 
 #=============================================================================
 # Target rules for targets named ament_cmake_python_build_pickplace_rl_mobile_egg
@@ -250,8 +250,8 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... ament_cmake_python_build_pickplace_rl_mobile_egg"
-	@echo "... ament_cmake_python_copy_pickplace_rl_mobile"
-	@echo "... ament_cmake_python_copy_pickplace_rl_mobile_setup"
+	@echo "... ament_cmake_python_symlink_pickplace_rl_mobile"
+	@echo "... ament_cmake_python_symlink_pickplace_rl_mobile_setup"
 	@echo "... pickplace_rl_mobile_uninstall"
 	@echo "... uninstall"
 .PHONY : help

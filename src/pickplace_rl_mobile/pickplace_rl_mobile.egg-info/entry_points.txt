@@ -1,0 +1,8 @@
+[console_scripts]
+manip_rl_node = pickplace_rl_mobile.manip_rl_node:main
+perception_node = pickplace_rl_mobile.perception_node:main
+safety_guard = pickplace_rl_mobile.safety_guard:main
+smart_pick_place = pickplace_rl_mobile.smart_pick_place:main
+test_policy = pickplace_rl_mobile.test_policy:main
+train_rl = pickplace_rl_mobile.train_rl:main
+

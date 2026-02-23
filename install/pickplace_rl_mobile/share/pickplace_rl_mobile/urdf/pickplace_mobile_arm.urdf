@@ -517,7 +517,35 @@
     </plugin>
   </gazebo>
 
-  <!-- Camera Plugin -->
+  <!-- LiDAR Link -->
+  <link name="lidar_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.04"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.04"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.05"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <!-- Mounted on top center of chassis -->
+    <origin xyz="0.0 0 0.12" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Camera Plugin (RGB) -->
   <gazebo reference="camera_link">
     <sensor name="camera" type="camera">
       <update_rate>30.0</update_rate>
@@ -536,6 +564,58 @@
           <far>3</far>
         </clip>
       </camera>
+    </sensor>
+  </gazebo>
+
+  <!-- Depth Camera Plugin (RGB-D) -->
+  <gazebo reference="camera_link">
+    <sensor name="depth_camera" type="depth_camera">
+      <update_rate>15.0</update_rate>
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <topic>camera/depth</topic>
+      <camera>
+        <horizontal_fov>1.047198</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R_FLOAT32</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>3</far>
+        </clip>
+      </camera>
+    </sensor>
+  </gazebo>
+
+  <!-- 2D LiDAR Plugin for Nav2 -->
+  <gazebo reference="lidar_link">
+    <sensor name="lidar" type="gpu_lidar">
+      <update_rate>10.0</update_rate>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <topic>scan</topic>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>640</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>12.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+        </noise>
+      </ray>
     </sensor>
   </gazebo>
 
