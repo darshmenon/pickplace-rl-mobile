@@ -9,7 +9,6 @@ A complete **autonomous mobile manipulator** system that combines a differential
 
 The project features a full **RGB-D perception pipeline** for camera-based object detection, a **2D LiDAR** for Nav2 obstacle-aware navigation, a **real-time safety guard** with emergency stop, and **domain randomization** for sim-to-real transfer — making it a comprehensive showcase of modern mobile manipulation in ROS 2.
 
-![Gazebo Simulation](./images/gazebo_simulation.png)
 ![Robot Model](./images/gazebo_robot.png)
 ![New Mobile UR3 Robot with Camera & Depth Camera](./images/new_mobile_ur3.png)
 
