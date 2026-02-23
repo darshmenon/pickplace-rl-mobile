@@ -25,13 +25,15 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
+    from launch.substitutions import Command
+    from launch_ros.parameter_descriptions import ParameterValue
+
     pkg_dir = get_package_share_directory('pickplace_rl_mobile')
-    urdf_file = os.path.join(pkg_dir, 'urdf', 'pickplace_mobile_arm.urdf')
+    urdf_file = os.path.join(pkg_dir, 'urdf', 'mobile_ur3.urdf')
     world_file = os.path.join(pkg_dir, 'worlds', 'pickplace_world.world')
     nav2_params = os.path.join(pkg_dir, 'config', 'nav2_params.yaml')
 
-    with open(urdf_file, 'r') as f:
-        robot_description_content = f.read()
+    robot_description_content = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
 
     # Launch arguments
     use_nav2_arg = DeclareLaunchArgument(
@@ -74,7 +76,13 @@ def generate_launch_description():
             '-world', 'pickplace_world',
             '-name', 'pickplace_robot',
             '-topic', 'robot_description',
-            '-x', '0.0', '-y', '0.5', '-z', '0.1'
+            '-x', '0.0', '-y', '0.5', '-z', '0.1',
+            '-J', 'shoulder_pan_joint', '0.0',
+            '-J', 'shoulder_lift_joint', '-1.57',
+            '-J', 'elbow_joint', '1.57',
+            '-J', 'wrist_1_joint', '-1.57',
+            '-J', 'wrist_2_joint', '-1.57',
+            '-J', 'wrist_3_joint', '0.0'
         ],
         output='screen'
     )
