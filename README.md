@@ -66,7 +66,8 @@ ros2 launch pickplace_rl_mobile display_mobile_ur3.launch.py
 ## Full Documentation
 
 See **[readme.md](./readme.md)** for complete documentation including:
-- Detailed system architecture deep-dive
+- Detailed system architecture deep-dive (**NEW**: see [System Architecture & Future Improvements](./docs/system_architecture_and_improvements.md))
+- Detailed hardware configuration (**NEW**: see [Robot Architecture Document](./docs/robot_architecture.md))
 - Full directory structure
 - Installation prerequisites
 - Training guide with hyperparameters

@@ -25,6 +25,11 @@ Most reinforcement learning robotics projects focus on either navigation (mobile
 
 ## System Architecture Deep-Dive
 
+This section is heavily detailed in our supplementary documentation. 
+Please refer to:
+1. **[Robot Architecture Document](./docs/robot_architecture.md)** for details on the URDF, mobile base, 6-DOF UR3 arm, and sensors (RGB-D, LiDAR).
+2. **[System Architecture & Future Improvements](./docs/system_architecture_and_improvements.md)** for details on the software stack (Perception, Safety Guard, RL Env, Domain Randomization, Nav2) and the future roadmap.
+
 This section explains how every component of the system works together, from sensors to decision-making. The architecture is designed to be highly modular, explicitly separating perception, safety, and control so that real-world sensors (like a physical RealSense camera) can eventually substitute the simulated ones without modifying the RL policy.
 
 ### Overview
@@ -88,116 +93,7 @@ The robot is described in a single URDF file (`pickplace_mobile_arm.urdf`) and c
 - **Depth Camera** (640x480 @ 15Hz) — co-located with the RGB camera. Publishes to `/camera/depth`. Used for back-projecting 2D detections into 3D world coordinates
 - **2D LiDAR** (360 degrees, 640 samples @ 10Hz, 12m range) — mounted on top of the chassis. Publishes to `/scan`. Used for Nav2 costmaps and obstacle avoidance
 
-### 2. Perception Pipeline (`perception_node.py`)
 
-The perception node replaces the hard-coded object positions that the original RL environment used. It runs entirely with NumPy (no OpenCV dependency) and works as follows:
-
-**Step 1: RGB to HSV conversion** — The raw RGB image is converted to HSV color space using a pure NumPy implementation. This makes the detection robust to lighting changes compared to raw RGB thresholding.
-
-**Step 2: Color segmentation** — Two HSV masks are applied to capture red (hue wraps around 0/180 in the HSV space):
-- Range 1: H=[0,10], S=[100,255], V=[100,255]
-- Range 2: H=[170,180], S=[100,255], V=[100,255]
-
-The union of both masks captures all shades of red.
-
-**Step 3: Blob detection** — All pixels passing the mask are collected. If there are enough (> `min_contour_area` pixels), the centroid is computed as the mean pixel position.
-
-**Step 4: Depth projection** — The depth image around the centroid is sampled in a 10x10 window. The median valid depth (between 5cm and 3m) is used with the pinhole camera model to back-project the 2D detection into 3D camera-frame coordinates:
-```
-x = (pixel_x - cx) * depth / fx
-y = (pixel_y - cy) * depth / fy
-z = depth
-```
-
-**Step 5: Publish** — The 3D pose is published as a `PoseStamped` on `/perception/detected_object`. A debug image with the detection overlay is published on `/perception/debug_image`. RViz markers highlight the detected object (red sphere) and target zone (green cylinder).
-
-### 3. Safety Guard (`safety_guard.py`)
-
-The safety system runs at 20Hz and enforces multiple constraints:
-
-- **Joint limit monitoring** — Each joint position is compared against its URDF limits with a configurable margin (default 0.1 rad). Warnings are raised as joints approach limits.
-
-- **End-effector workspace** — Forward kinematics computes the EE position. The node checks:
-  - EE height > 2cm (prevent ground collision)
-  - EE reach < 75cm (prevent overextension)
-
-- **Base workspace** — The base position from odometry must stay within a configurable radius from origin (default 3m).
-
-- **LiDAR obstacle detection** — The minimum range from the `/scan` LaserScan is monitored. If any obstacle is closer than 25cm, a **CRITICAL** emergency stop is triggered — sending zero velocity on `/cmd_vel`.
-
-- **Status publishing** — A JSON status message on `/safety/status` includes severity level, list of violations, EE position, minimum obstacle distance, and e-stop state. The ManipRL node subscribes to this and freezes if e-stop is active.
-
-### 4. RL Environment (`pickplace_env.py`)
-
-The Gymnasium environment wraps the ROS 2 simulation:
-
-**Observation space (16-dim):**
-| Index | Content | Purpose |
-|-------|---------|---------|
-| 0-4 | Joint positions (5 arm joints) | Proprioception |
-| 5-7 | End-effector XYZ (local frame) | Arm state |
-| 8-10 | Object position XYZ | Task target |
-| 11 | Object grasped flag | Task state |
-| 12 | Current phase (0-5) | State machine |
-| 13-15 | Base pose (x, y, theta) | Navigation |
-
-**Action space (8-dim continuous [-1, 1]):**
-| Index | Content | Scale |
-|-------|---------|-------|
-| 0-4 | Joint velocities | x0.5 rad/s |
-| 5 | Gripper command (+open/-close) | binary threshold |
-| 6 | Base linear velocity | x0.5 m/s |
-| 7 | Base angular velocity | x1.0 rad/s |
-
-**6-Phase state machine & Curriculum Learning:**
-Reinforcement learning for continuous control (like SAC) often struggles with sparse rewards in complex multi-step tasks. Therefore, the reward function guides the agent through a strict sequential curriculum, preventing random thrashing and dramatically speeding up convergence:
-1. **Phase 0 - APPROACH**: Navigate base + extend arm towards the object. Reward: dense distance reduction (base + arm + angular alignment)
-2. **Phase 1 - LOWER**: Lower the EE to grasp height (7cm). Reward: dense Z-distance
-3. **Phase 2 - GRASP**: Close gripper. Reward: +50 (sparse bonus) when gripper closes
-4. **Phase 3 - LIFT**: Raise object to safe transport height (25cm). Reward: dense Z-distance
-5. **Phase 4 - MOVE TO TARGET**: Navigate to the target zone. Reward: dense XY-distance
-6. **Phase 5 - RELEASE**: Lower to target and open gripper. Reward: +100 (sparse bonus) for overall success
-
-**Reward Shaping Mechanics:**
-- **Dense Rewards**: The agent receives continuous micro-rewards inversely proportional to its Euclidean distance to the current phase's objective.
-- **Penalties**: 
-  - Massive `-100` penalty and instant episode termination if the end-effector safety drops below 10cm during unsafe navigation phases (preventing hardware damage).
-  - Continuous `-0.01` penalty per timestep based on joint velocity magnitude, incentivizing smooth, energy-efficient motions.
-
-### 5. Manipulation RL Node (`manip_rl_node.py`)
-
-This node wraps the trained SAC policy as a real-time ROS 2 controller:
-- Loads a trained `.zip` model from Stable-Baselines3
-- Subscribes to `/joint_states`, `/odom`, and `/perception/detected_object`
-- Builds the same 16-dim observation vector as the training env
-- Runs policy inference at 20Hz
-- Publishes the 8-dim action as individual joint velocity commands + base Twist
-- Respects safety guard — freezes all outputs if e-stop is active
-
-Key difference from training: instead of using hard-coded `self.object_pos`, it uses the live 3D position from the perception node.
-
-### 6. Domain Randomization (`domain_randomizer.py`)
-
-A utility module that plugs into the training environment's `reset()` and `step()` methods. Training an RL agent exclusively in a pristine simulation often leads to the **sim-to-real gap**, where the agent fails in the real world due to minor discrepancies (e.g., lighting, friction, sensor noise). Domain Randomization forces the agent to learn robust policies invariant to these discrepancies.
-
-- **Visual Randomization**: Object size is scaled (80%-130%) and HSV color hues are shifted around red, preventing the perception pipeline from overfitting to exact pixel values.
-- **Pose Randomization**: Object and target positions are randomized within the bin/target zones every episode so the agent learns a generalized policy rather than memorizing a single path.
-- **Sensor Observation Noise**: Gaussian noise is injected into joint positions (0.01 rad std), odometry (0.005m std), and LiDAR heading to simulate imperfect real-world encoders and SLAM.
-- **Action Noise**: Small Gaussian perturbations (0.02 std) are applied to the agent's actions, ensuring the policy doesn't rely on mathematically perfect motor execution.
-- **Dynamics Randomization**: Variations in mass, friction, and gravity (physics noise) force the agent to adapt its grasping and movement forces.
-
-All randomization configurations are handled via a `RandomizationConfig` dataclass, allowing easy toggling of specific parameters during different stages of training.
-
-### 7. Nav2 Navigation
-
-The Nav2 stack provides autonomous goal-oriented navigation for the mobile base:
-
-- **Localization (AMCL)** — Adaptive Monte Carlo Localization using the 2D LiDAR to localize on a known map
-- **Global planner (NavFn)** — A* or Dijkstra path planning on the global costmap
-- **Local controller (DWB)** — Dynamic Window approach for reactive obstacle avoidance, tuned for max 0.3 m/s linear, 1.0 rad/s angular
-- **Costmaps** — Local (3m x 3m rolling window) and global costmaps with LiDAR-based obstacle layers and 0.5m inflation radius
-- **Recovery behaviors** — Spin, backup, and wait for when the robot gets stuck
-- **Launch** — Enabled via `use_nav2:=true` in the full system launch
 
 ---
 
