@@ -82,6 +82,22 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "smart_pick_place" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/smart_pick_place.py")
 endif()
 
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "vla_action_node" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/vla_action_node.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "vla_vision_node" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/vla_vision_node.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "vla_language_node" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/vla_language_node.py")
+endif()
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pickplace_rl_mobile" TYPE PROGRAM RENAME "vla_coordinator_node" FILES "/home/asimov/pickplace-rl-mobile/src/pickplace_rl_mobile/pickplace_rl_mobile/vla_coordinator_node.py")
+endif()
+
 if(CMAKE_INSTALL_COMPONENT)
   set(CMAKE_INSTALL_MANIFEST "install_manifest_${CMAKE_INSTALL_COMPONENT}.txt")
 else()

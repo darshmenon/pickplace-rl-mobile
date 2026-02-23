@@ -778,7 +778,7 @@
       <offset>0.0</offset>
     </plugin>
   </gazebo>
-  <joint name="gripper_joint" type="revolute">
+  <joint name="gripper_joint" type="fixed">
     <parent link="tool0" />
     <child link="robotiq_arg2f_base_link" />
     <origin rpy="0 0 0" xyz="0 0 0.005" />

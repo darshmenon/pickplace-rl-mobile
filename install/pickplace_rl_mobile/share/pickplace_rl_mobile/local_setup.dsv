@@ -1,3 +1,1 @@
-source;share/pickplace_rl_mobile/environment/ament_prefix_path.sh
-source;share/pickplace_rl_mobile/environment/path.sh
-source;share/pickplace_rl_mobile/environment/pythonpath.sh
+/home/asimov/pickplace-rl-mobile/build/pickplace_rl_mobile/ament_cmake_environment_hooks/local_setup.dsv
