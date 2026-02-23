@@ -4,12 +4,14 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 def generate_launch_description():
+    from launch.substitutions import Command
+    from launch_ros.parameter_descriptions import ParameterValue
+    
     pkg_path = get_package_share_directory('pickplace_rl_mobile')
     urdf_file = os.path.join(pkg_path, 'urdf', 'mobile_ur3.urdf')
     rviz_config = os.path.join(pkg_path, 'rviz', 'urdf.rviz')
 
-    with open(urdf_file, 'r') as infp:
-        robot_desc = infp.read()
+    robot_desc = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
 
     return LaunchDescription([
         Node(
