@@ -8,7 +8,18 @@ A Vision Language Action (VLA) system connects three domains:
 
 The system maps a tuple of `(Image, Instruction)` to a `Robot Action`.
 
-## 2. System Architecture Design
+## 4. System Operation
+
+### URDF and RViz Simulation Integration
+The system unifies the mobile platform and the UR3 arm into a single kinematics tree: `dummy_root` -> `chassis_link` -> Wheels/Sensors + `base_link` -> `flange` -> `gripper_joint` -> `robotiq`. 
+
+Crucial fixes for proper `robot_state_publisher` execution:
+* **Geometry Parsing**: Ensure the `ur_description` (arm) and `robotiq_visualization` (gripper) packages are fully built so `package://` locating works; absolute paths like `file:///` cause conflicts between machines.
+* **Xacro Syntax**: The root `<robot>` XML attribute must explicitly define `xmlns:xacro="http://www.ros.org/wiki/xacro"` rather than dictionary definitions, otherwise `urdf_parser_py` outright rejects the file under strict ROS 2 parameters (`Invalid robot_description`). 
+* **TF Broadcasting**: `robot_description` needs to be passed to *both* `robot_state_publisher` and `joint_state_publisher_gui` as a `ParameterValue(Command(['xacro ']))` object. Injecting an unparsed text block directly into a Python launch file node strips layout formatting and breaks the hierarchy.
+
+### Execution Phases
+
 To maintain reliability and extensibility in ROS 2, the system uses a modular pipeline instead of a monolithic end-to-end model. We have implemented this inside the `pickplace_rl_mobile` package:
 
 1. **Vision Node (`vla_vision_node.py`)**: Converts raw camera feeds into 3D object poses using OpenCV HSV color segmentation. It computes the centroid, merges depth data, and publishes `geometry_msgs/PoseStamped` objects, as well as a JSON string containing the global tracking states of known colored objects.
