@@ -55,6 +55,9 @@ ros2 launch pickplace_rl_mobile full_system.launch.py use_nav2:=true
 
 # Or with trained RL policy
 ros2 launch pickplace_rl_mobile full_system.launch.py use_rl:=true model_path:=./rl_models/pickplace_final_model.zip
+
+# Visualize Combined Mobile Manipulator (UR3 + Base)
+ros2 launch pickplace_rl_mobile display_mobile_ur3.launch.py
 ```
 
 ---
