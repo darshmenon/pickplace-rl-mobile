@@ -11,6 +11,7 @@ The project features a full **RGB-D perception pipeline** for camera-based objec
 
 ![Gazebo Simulation](./images/gazebo_simulation.png)
 ![Robot Model](./images/gazebo_robot.png)
+![New Mobile UR3 Robot with Camera & Depth Camera](./images/new_mobile_ur3.png)
 
 ## Project Goal
 
